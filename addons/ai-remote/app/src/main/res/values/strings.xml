@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Web Remote</string>
+    <string name="pairing_title">Web Remote &amp; Companion</string>
+    <string name="pairing_instructions">Scan this QR code with your phone camera or browser on the same Wi-Fi network.</string>
+    <string name="pairing_url_label">Or open in your browser:</string>
+    <string name="pairing_code_label">PAIRING CODE</string>
+    <string name="status_waiting">Waiting for connection…</string>
+    <string name="status_connected">Connected to phone</string>
+    <string name="btn_revoke">Generate New Code</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="btn_close">Back to Home</string>
+    <string name="accessibility_desc">Allows the phone companion remote to navigate D-pad and perform Back actions across TV apps.</string>
+</resources>

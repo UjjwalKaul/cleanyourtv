@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_base">#08090D</color>
+    <color name="surface_card">#121622</color>
+    <color name="surface_control">#181E2E</color>
+    <color name="border_subtle">#232A3D</color>
+    <color name="accent_primary">#6366F1</color>
+    <color name="accent_cyan">#38BDF8</color>
+    <color name="status_success">#10B981</color>
+    <color name="status_danger">#F43F5E</color>
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_muted">#64748B</color>
+</resources>

@@ -1,0 +1,1743 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=2.0, viewport-fit=cover"
+        />
+        <title>CleanYourTV Web Remote</title>
+        <link rel="manifest" href="manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="TV Remote" />
+        <meta name="theme-color" content="#08090d" />
+        <link rel="stylesheet" href="app.css" />
+        <style>
+/* CleanYourTV Web Remote Design System: Deep Obsidian Glass & Tactile Ergonomics */
+:root {
+    --bg-base: #08090d;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #171d2c 0%, #08090d 75%);
+    --surface-card: #121622;
+    --surface-glass: rgba(18, 22, 34, 0.78);
+    --surface-control: #181e2e;
+    --surface-control-active: #232a40;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-focus: rgba(99, 102, 241, 0.5);
+    --accent: #38bdf8;
+    --accent-primary: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.35);
+    --accent-cyan: #38bdf8;
+    --status-success: #10b981;
+    --status-danger: #f43f5e;
+    --danger-text: #fda4af;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background: var(--bg-base);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Header & Sticky Bar */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-badge {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px var(--accent-glow);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.logo-badge svg {
+    width: 17px;
+    height: 17px;
+    stroke: #ffffff;
+}
+
+h1 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--text-primary);
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--status-danger);
+    transition: all 0.2s ease;
+}
+
+@keyframes pulse-emerald {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.status-dot.connected {
+    background: var(--status-success);
+    animation: pulse-emerald 2.4s infinite;
+}
+
+/* Navigation Segmented Tab Bar */
+nav {
+    display: flex;
+    background: rgba(14, 18, 28, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 59px;
+    z-index: 40;
+}
+
+.tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 13px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    min-height: 48px;
+}
+
+.tab-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    transition: stroke 0.15s ease;
+}
+
+.tab-btn.active {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+    background: rgba(56, 189, 248, 0.04);
+}
+
+/* Main Container */
+main {
+    flex: 1;
+    padding: 20px 16px;
+    max-width: 460px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.view {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+}
+
+.view.active {
+    display: flex;
+}
+
+/* D-PAD REMOTE VIEW: Tactile Sphere */
+.dpad-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 16px 0 28px 0;
+}
+
+.dpad {
+    position: relative;
+    width: 256px;
+    height: 256px;
+    background: linear-gradient(145deg, #161b29, #0f131d);
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.6),
+        inset 0 1px 1px rgba(255, 255, 255, 0.12),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.dpad-btn {
+    position: absolute;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.08s ease, color 0.12s ease;
+    touch-action: manipulation;
+}
+
+.dpad-btn:active,
+.dpad-btn.is-active {
+    color: var(--accent-cyan);
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+}
+
+.dpad-btn svg {
+    width: 32px;
+    height: 32px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+}
+
+/* Centered D-pad Directional Petals */
+.btn-up {
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 82px;
+    height: 62px;
+}
+.btn-up:active,
+.btn-up.is-active {
+    transform: translateX(-50%) scale(0.92);
+}
+
+.btn-down {
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 82px;
+    height: 62px;
+}
+.btn-down:active,
+.btn-down.is-active {
+    transform: translateX(-50%) scale(0.92);
+}
+
+.btn-left {
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 62px;
+    height: 82px;
+}
+.btn-left:active,
+.btn-left.is-active {
+    transform: translateY(-50%) scale(0.92);
+}
+
+.btn-right {
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 62px;
+    height: 82px;
+}
+.btn-right:active,
+.btn-right.is-active {
+    transform: translateY(-50%) scale(0.92);
+}
+
+/* Center OK Button: Elevated Tactile Disc */
+.btn-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(145deg, #1e2538, #131724);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.45),
+        inset 0 1px 1px rgba(255, 255, 255, 0.18),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+    transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
+    touch-action: manipulation;
+}
+
+.btn-center:active,
+.btn-center.is-active {
+    background: linear-gradient(145deg, #6366f1, #4f46e5);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 24px var(--accent-glow), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%) scale(0.92);
+}
+
+/* ACTION & MEDIA GRID */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.ctrl-btn {
+    background: linear-gradient(160deg, rgba(26, 32, 48, 0.8), rgba(16, 20, 30, 0.9));
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    border-radius: 16px;
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    touch-action: manipulation;
+    min-height: 64px;
+}
+
+.ctrl-btn:active,
+.ctrl-btn.is-active {
+    background: linear-gradient(160deg, rgba(99, 102, 241, 0.3), rgba(26, 32, 48, 0.9));
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+    transform: scale(0.94);
+    color: var(--accent-cyan);
+}
+
+.ctrl-btn.is-muted {
+    background: linear-gradient(160deg, rgba(244, 63, 94, 0.2), rgba(30, 20, 25, 0.9));
+    border-color: rgba(244, 63, 94, 0.5);
+    color: #fda4af;
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.25);
+}
+
+.ctrl-btn.is-muted:active {
+    background: rgba(244, 63, 94, 0.35);
+    border-color: #f43f5e;
+    color: #ffffff;
+}
+
+.ctrl-btn.is-playing {
+    color: var(--accent-cyan);
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* TV KEYBOARD INPUT CARD */
+.card {
+    background: linear-gradient(160deg, rgba(22, 27, 40, 0.75), rgba(14, 17, 26, 0.85));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
+}
+
+.text-input {
+    flex: 1;
+    background: rgba(8, 10, 16, 0.65);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    color: var(--text-primary);
+    padding: 13px 16px;
+    font-size: 15px;
+    outline: none;
+    font-family: inherit;
+    min-height: 48px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.text-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+    background: rgba(8, 10, 16, 0.85);
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    border-radius: 14px;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:
+        0 4px 16px var(--accent-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.15s ease;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.primary-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+/* APPS SHELF & GRID */
+.shelf-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.apps-grid,
+.apps-shelf {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    padding-bottom: 24px;
+}
+
+@media (min-width: 440px) {
+    .apps-grid,
+    .apps-shelf {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.app-card {
+    background: linear-gradient(160deg, rgba(26, 32, 48, 0.8), rgba(15, 18, 28, 0.9));
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    border-radius: 16px;
+    padding: 14px 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    min-height: 106px;
+}
+
+.app-card:active,
+.app-card.is-pressed {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 18px var(--accent-glow);
+    transform: scale(0.94);
+}
+
+.app-card-icon {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--accent-cyan);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+}
+
+.app-card-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    pointer-events: none;
+}
+
+/* Floating Launch Toast Notification */
+.app-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(18, 22, 34, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s ease;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.app-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* SETTINGS VIEW & CONTROLS */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.danger-btn {
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid var(--status-danger);
+    color: var(--danger-text);
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 48px;
+    width: 100%;
+    transition: all 0.15s ease;
+    touch-action: manipulation;
+}
+
+.danger-btn:active {
+    background: var(--status-danger);
+    color: #ffffff;
+    transform: scale(0.98);
+}
+
+/* Pairing Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.modal-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 22px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <header>
+            <div class="logo-area">
+                <div class="logo-badge">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <rect x="2" y="7" width="20" height="15" rx="2"></rect>
+                        <polyline points="17 2 12 7 7 2"></polyline>
+                    </svg>
+                </div>
+                <h1>CleanYourTV</h1>
+            </div>
+            <div class="status-pill" id="statusPill" aria-live="polite">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting…</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav role="tablist">
+            <button
+                class="tab-btn active"
+                data-tab="remote"
+                role="tab"
+                aria-selected="true"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    <circle cx="12" cy="10" r="4"></circle>
+                </svg>
+                Remote
+            </button>
+            <button
+                class="tab-btn"
+                data-tab="apps"
+                role="tab"
+                aria-selected="false"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                Apps
+            </button>
+            <button
+                class="tab-btn"
+                data-tab="settings"
+                role="tab"
+                aria-selected="false"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                    ></path>
+                </svg>
+                Settings
+            </button>
+        </nav>
+
+        <!-- Main Views -->
+        <main>
+            <!-- 1. REMOTE VIEW -->
+            <section class="view active" id="view-remote" role="tabpanel">
+                <div class="dpad-container">
+                    <div class="dpad">
+                        <button
+                            class="dpad-btn btn-up"
+                            data-key="DPAD_UP"
+                            aria-label="Up"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </button>
+                        <button
+                            class="dpad-btn btn-down"
+                            data-key="DPAD_DOWN"
+                            aria-label="Down"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <button
+                            class="dpad-btn btn-left"
+                            data-key="DPAD_LEFT"
+                            aria-label="Left"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+                        <button
+                            class="dpad-btn btn-right"
+                            data-key="DPAD_RIGHT"
+                            aria-label="Right"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                        <button
+                            class="dpad-btn btn-center"
+                            data-key="DPAD_CENTER"
+                            aria-label="OK"
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-grid">
+                    <button class="ctrl-btn" data-key="BACK">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M19 12H5"></path>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back
+                    </button>
+                    <button class="ctrl-btn" data-key="HOME">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path
+                                d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                            ></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Home
+                    </button>
+                    <button class="ctrl-btn" id="btnPlayPause" data-key="PLAY_PAUSE" aria-label="Play or Pause">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M4 5.2v13.6a.8.8 0 0 0 1.25.66l8-6.8a.8.8 0 0 0 0-1.24l-8-6.8A.8.8 0 0 0 4 5.2z"/>
+                            <rect x="15" y="5" width="3" height="14" rx="1.5"/>
+                            <rect x="20" y="5" width="3" height="14" rx="1.5"/>
+                        </svg>
+                        <span>Play / Pause</span>
+                    </button>
+                    <button class="ctrl-btn" data-key="VOLUME_DOWN" aria-label="Volume Down">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <polygon
+                                points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                                fill="currentColor"
+                            ></polygon>
+                            <line
+                                x1="16"
+                                y1="12"
+                                x2="22"
+                                y2="12"
+                                stroke-width="2.5"
+                            ></line>
+                        </svg>
+                        Vol −
+                    </button>
+                    <button class="ctrl-btn" data-key="VOLUME_UP" aria-label="Volume Up">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <polygon
+                                points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                                fill="currentColor"
+                            ></polygon>
+                            <line
+                                x1="19"
+                                y1="9"
+                                x2="19"
+                                y2="15"
+                                stroke-width="2.2"
+                            ></line>
+                            <line
+                                x1="16"
+                                y1="12"
+                                x2="22"
+                                y2="12"
+                                stroke-width="2.2"
+                            ></line>
+                        </svg>
+                        Vol +
+                    </button>
+                    <button class="ctrl-btn" id="btnMute" data-key="MUTE" aria-label="Mute TV">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <polygon
+                                points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                                fill="currentColor"
+                            ></polygon>
+                            <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                            <path d="M19 5a9.5 9.5 0 0 1 0 14"></path>
+                        </svg>
+                        <span>Mute</span>
+                    </button>
+                </div>
+
+                <!-- TV Keyboard Input Card -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                            <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                            <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                            <line x1="18" y1="8" x2="18.01" y2="8"></line>
+                            <line x1="8" y1="12" x2="8.01" y2="12"></line>
+                            <line x1="12" y1="12" x2="12.01" y2="12"></line>
+                            <line x1="16" y1="12" x2="16.01" y2="12"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
+                        </svg>
+                        <span>TV Keyboard</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 6px;">
+                        <input
+                            type="text"
+                            id="tvTextInput"
+                            class="text-input"
+                            placeholder="Type text to send to TV…"
+                            enterkeyhint="send"
+                            autocomplete="off"
+                        />
+                        <button
+                            id="btnSendText"
+                            class="primary-btn"
+                            style="white-space: nowrap; padding: 12px 18px;"
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. APPS VIEW -->
+            <section class="view" id="view-apps" role="tabpanel">
+                <div class="shelf-title">
+                    <span>Installed TV Apps</span>
+                </div>
+                <div class="apps-grid apps-shelf" id="appsShelf">
+                    <!-- Rendered dynamically from TV PackageManager -->
+                </div>
+            </section>
+
+            <!-- 3. SETTINGS VIEW -->
+            <section class="view" id="view-settings" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                            ></path>
+                        </svg>
+                        <span>Connection Settings</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label class="label" for="inpPairingToken">TV Pairing Code</label>
+                        <div style="display: flex; gap: 10px">
+                            <input
+                                type="text"
+                                id="inpPairingToken"
+                                class="text-input"
+                                maxlength="6"
+                                style="
+                                    text-transform: uppercase;
+                                    font-family: monospace;
+                                    letter-spacing: 2px;
+                                    font-weight: bold;
+                                "
+                            />
+                            <button
+                                class="primary-btn"
+                                id="btnUpdateToken"
+                                style="white-space: nowrap"
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <button class="danger-btn" id="btnForget">
+                            Disconnect &amp; Clear Pairing
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Pairing Modal for Missing/Expired Token -->
+        <div class="modal-overlay" id="pairingModal">
+            <div class="modal-card">
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 14px;
+                    "
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="22"
+                        height="22"
+                        fill="none"
+                        stroke="var(--accent-cyan)"
+                        stroke-width="2"
+                    >
+                        <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    </svg>
+                    <h2 style="font-size: 18px; font-weight: 600">
+                        Pair with TV
+                    </h2>
+                </div>
+                <p
+                    style="
+                        font-size: 14px;
+                        color: var(--text-secondary);
+                        line-height: 1.5;
+                        margin-bottom: 18px;
+                    "
+                >
+                    Enter the 6-character code displayed on your TV screen:
+                </p>
+                <input
+                    type="text"
+                    id="modalTokenInput"
+                    class="text-input"
+                    maxlength="6"
+                    placeholder="e.g. K9X2B7"
+                    style="
+                        text-transform: uppercase;
+                        font-family: monospace;
+                        font-size: 20px;
+                        text-align: center;
+                        letter-spacing: 6px;
+                        margin-bottom: 18px;
+                        width: 100%;
+                    "
+                />
+                <button
+                    class="primary-btn"
+                    id="btnModalConnect"
+                    style="width: 100%"
+                >
+                    Connect Remote
+                </button>
+            </div>
+        </div>
+
+        <script>
+            window.__INJECTED_TOKEN__ = "__TOKEN_PLACEHOLDER__";
+        </script>
+        <script src="app.js"></script>
+        <script>
+// Fallback if app.js is not loaded
+if (typeof window.connectWs !== "function" && !window.__APP_LOADED__) {
+    // Embedded Client Script
+    (function () {
+        "use strict";
+        function getCookie(name) {
+            try {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift() || "";
+            } catch (ignored) {}
+            return "";
+        }
+
+        function getStoredToken() {
+            try {
+                return localStorage.getItem("tv_token") || "";
+            } catch (ignored) {
+                return "";
+            }
+        }
+
+        function saveStoredToken(token) {
+            try {
+                localStorage.setItem("tv_token", token);
+            } catch (ignored) {}
+            try {
+                document.cookie = `tv_token=${encodeURIComponent(token)}; path=/; max-age=31536000; SameSite=Lax`;
+            } catch (ignored) {}
+        }
+
+        function clearStoredToken() {
+            try {
+                localStorage.removeItem("tv_token");
+            } catch (ignored) {}
+            try {
+                document.cookie = "tv_token=; path=/; max-age=0";
+            } catch (ignored) {}
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let sessionToken =
+            urlParams.get("token") ||
+            (window.__INJECTED_TOKEN__ &&
+            window.__INJECTED_TOKEN__ !== "__TOKEN_PLACEHOLDER__"
+                ? window.__INJECTED_TOKEN__
+                : "") ||
+            getCookie("tv_token") ||
+            getStoredToken() ||
+            "";
+
+        if (sessionToken && sessionToken.length === 6) {
+            sessionToken = sessionToken.toUpperCase();
+            saveStoredToken(sessionToken);
+            if (!urlParams.has("token")) {
+                try {
+                    const newUrl = `${window.location.pathname}?token=${encodeURIComponent(sessionToken)}${window.location.hash}`;
+                    window.history.replaceState({}, "", newUrl);
+                } catch (ignored) {}
+            }
+        }
+
+        let ws = null;
+        let isConnected = false;
+        let installedApps = [];
+        let isMuted = false;
+        let isPlaying = false;
+        let reconnectAttempts = 0;
+        let reconnectTimeout = null;
+
+        const statusDot = document.getElementById("statusDot");
+        const statusText = document.getElementById("statusText");
+        const appsShelf = document.getElementById("appsShelf");
+        const tvTextInput = document.getElementById("tvTextInput");
+        const btnSendText = document.getElementById("btnSendText");
+        const inpPairingToken = document.getElementById("inpPairingToken");
+        const btnUpdateToken = document.getElementById("btnUpdateToken");
+        const btnForget = document.getElementById("btnForget");
+        const pairingModal = document.getElementById("pairingModal");
+        const modalTokenInput = document.getElementById("modalTokenInput");
+        const btnModalConnect = document.getElementById("btnModalConnect");
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".tab-btn").forEach((b) => {
+                    b.classList.remove("active");
+                    b.setAttribute("aria-selected", "false");
+                });
+                document
+                    .querySelectorAll(".view")
+                    .forEach((v) => v.classList.remove("active"));
+                btn.classList.add("active");
+                btn.setAttribute("aria-selected", "true");
+                const tabId = btn.getAttribute("data-tab");
+                const targetView = document.getElementById("view-" + tabId);
+                if (targetView) targetView.classList.add("active");
+                triggerHaptic(8);
+            });
+        });
+
+        function detectDeviceName() {
+            const ua = navigator.userAgent || "";
+            if (/iPhone/i.test(ua)) return "Apple iPhone";
+            if (/iPad/i.test(ua)) return "Apple iPad";
+            if (/Pixel/i.test(ua)) return "Google Pixel";
+            if (/Samsung|SM-/i.test(ua)) return "Samsung Phone";
+            if (/Android/i.test(ua)) return "Android Device";
+            if (/Macintosh/i.test(ua)) return "Apple Mac";
+            if (/Windows/i.test(ua)) return "Windows PC";
+            return "Mobile Remote";
+        }
+
+        function connectWs() {
+            if (!sessionToken || sessionToken.length !== 6) {
+                showPairingModal();
+                return;
+            }
+
+            if (
+                ws &&
+                (ws.readyState === WebSocket.OPEN ||
+                    ws.readyState === WebSocket.CONNECTING)
+            )
+                return;
+
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const wsUrl = `${protocol}//${window.location.host}/ws?token=${encodeURIComponent(sessionToken)}`;
+
+            statusDot.className = "status-dot";
+            statusText.textContent = "Connecting…";
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    isConnected = true;
+                    reconnectAttempts = 0;
+                    statusDot.className = "status-dot connected";
+                    statusText.textContent = "Connected";
+                    hidePairingModal();
+                    try {
+                        ws.send(
+                            JSON.stringify({
+                                type: "HELLO",
+                                deviceName: detectDeviceName(),
+                            }),
+                        );
+                    } catch (ignored) {}
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const msg = JSON.parse(event.data);
+                        handleServerMessage(msg);
+                    } catch (e) {
+                        console.error("Failed to parse WebSocket message", e);
+                    }
+                };
+
+                ws.onclose = (event) => {
+                    isConnected = false;
+                    statusDot.className = "status-dot";
+                    statusText.textContent = "Disconnected";
+
+                    if (event.code === 1008 || event.code === 4001) {
+                        clearStoredToken();
+                        sessionToken = "";
+                        showPairingModal();
+                        return;
+                    }
+
+                    reconnectAttempts++;
+                    const delay = Math.min(
+                        800 * Math.pow(1.3, reconnectAttempts),
+                        5000,
+                    );
+                    clearTimeout(reconnectTimeout);
+                    reconnectTimeout = setTimeout(connectWs, delay);
+                };
+
+                ws.onerror = () => {
+                    ws.close();
+                };
+            } catch (e) {
+                setTimeout(connectWs, 2000);
+            }
+        }
+
+        function showPairingModal() {
+            if (pairingModal) {
+                pairingModal.style.display = "flex";
+                if (modalTokenInput) {
+                    modalTokenInput.value = "";
+                    modalTokenInput.focus();
+                }
+            }
+        }
+
+        function hidePairingModal() {
+            if (pairingModal) pairingModal.style.display = "none";
+        }
+
+        if (btnModalConnect) {
+            btnModalConnect.addEventListener("click", () => {
+                const code = modalTokenInput.value.trim().toUpperCase();
+                if (code.length === 6) {
+                    sessionToken = code;
+                    saveStoredToken(code);
+                    if (inpPairingToken) inpPairingToken.value = code;
+                    hidePairingModal();
+                    connectWs();
+                } else {
+                    alert("Please enter a valid 6-character code from your TV screen.");
+                }
+            });
+        }
+
+        if (btnUpdateToken) {
+            btnUpdateToken.addEventListener("click", () => {
+                const code = inpPairingToken.value.trim().toUpperCase();
+                if (code.length === 6) {
+                    sessionToken = code;
+                    saveStoredToken(code);
+                    if (ws) ws.close();
+                    connectWs();
+                    triggerHaptic(12);
+                    showToast("Pairing code updated");
+                } else {
+                    alert("Please enter a 6-character code.");
+                }
+            });
+        }
+
+        function sendTvCommand(payload) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(payload));
+                triggerHaptic(12);
+            } else {
+                triggerHaptic(40);
+                statusText.textContent = "Offline (Reconnecting…)";
+            }
+        }
+
+        function setMuteState(muted) {
+            isMuted = !!muted;
+            const btnMute = document.getElementById("btnMute");
+            if (!btnMute) return;
+            if (isMuted) {
+                btnMute.classList.add("is-muted");
+                btnMute.setAttribute("aria-label", "Unmute TV");
+                btnMute.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+                        <line x1="22" y1="9" x2="16" y2="15"></line>
+                        <line x1="16" y1="9" x2="22" y2="15"></line>
+                    </svg>
+                    <span>Unmute</span>
+                `;
+            } else {
+                btnMute.classList.remove("is-muted");
+                btnMute.setAttribute("aria-label", "Mute TV");
+                btnMute.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+                        <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                        <path d="M19 5a9.5 9.5 0 0 1 0 14"></path>
+                    </svg>
+                    <span>Mute</span>
+                `;
+            }
+        }
+
+        function updatePlayPauseUi(playing) {
+            isPlaying = !!playing;
+            const btn = document.getElementById("btnPlayPause");
+            if (!btn) return;
+            if (isPlaying) {
+                btn.classList.add("is-playing");
+                btn.setAttribute("aria-label", "Pause media");
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <rect x="6" y="4" width="3.8" height="16" rx="1.9"></rect>
+                        <rect x="14.2" y="4" width="3.8" height="16" rx="1.9"></rect>
+                    </svg>
+                    <span>Pause</span>
+                `;
+            } else {
+                btn.classList.remove("is-playing");
+                btn.setAttribute("aria-label", "Play media");
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M7 4.5v15a1 1 0 0 0 1.55.84l12-7.5a1 1 0 0 0 0-1.68l-12-7.5A1 1 0 0 0 7 4.5z"></path>
+                    </svg>
+                    <span>Play</span>
+                `;
+            }
+        }
+
+        function handleServerMessage(msg) {
+            if (typeof msg.isMuted === "boolean") {
+                setMuteState(msg.isMuted);
+            }
+            if (msg.type === "APPS_LIST" || msg.type === "APPS_UPDATED") {
+                installedApps = msg.apps || [];
+                renderAppsShelf(installedApps);
+            } else if (msg.status === "success" && (msg.launched || msg.name)) {
+                const displayName = msg.launched || msg.name || "App";
+                showToast(`Opened ${displayName} on TV`);
+            } else if (msg.status === "error") {
+                showToast(msg.message || "Action failed");
+            }
+        }
+
+        let repeatTimer = null;
+        let repeatInterval = null;
+        let activeRepeatBtn = null;
+        let lastMuteToggle = 0;
+        let lastPlayToggle = 0;
+
+        function stopRepeat() {
+            clearTimeout(repeatTimer);
+            clearInterval(repeatInterval);
+            repeatTimer = null;
+            repeatInterval = null;
+            if (activeRepeatBtn) {
+                activeRepeatBtn.classList.remove("is-active");
+                activeRepeatBtn = null;
+            }
+        }
+
+        document.querySelectorAll("[data-key]").forEach((btn) => {
+            const code = btn.getAttribute("data-key");
+            const isRepeatable =
+                code.startsWith("DPAD_") || code.startsWith("VOLUME_");
+
+            let handledByPointer = false;
+            let pointerResetTimer = null;
+
+            function triggerPress() {
+                const now = Date.now();
+                if (code === "MUTE") {
+                    if (now - lastMuteToggle < 350) return;
+                    lastMuteToggle = now;
+                    if (isMuted) {
+                        sendTvCommand({ type: "KEY", code: "UNMUTE" });
+                        setMuteState(false);
+                        showToast("Unmuted TV");
+                    } else {
+                        sendTvCommand({ type: "KEY", code: "MUTE" });
+                        setMuteState(true);
+                        showToast("Muted TV");
+                    }
+                    return;
+                }
+                if (code === "PLAY_PAUSE") {
+                    if (now - lastPlayToggle < 350) return;
+                    lastPlayToggle = now;
+                    sendTvCommand({ type: "KEY", code: "PLAY_PAUSE" });
+                    isPlaying = !isPlaying;
+                    updatePlayPauseUi(isPlaying);
+                    showToast(isPlaying ? "Play" : "Pause");
+                    return;
+                }
+                if (code === "VOLUME_UP" || code === "VOLUME_DOWN") {
+                    setMuteState(false);
+                }
+                sendTvCommand({ type: "KEY", code: code });
+            }
+
+            btn.addEventListener("pointerdown", () => {
+                handledByPointer = true;
+                clearTimeout(pointerResetTimer);
+                stopRepeat();
+                activeRepeatBtn = btn;
+                btn.classList.add("is-active");
+                triggerPress();
+
+                if (isRepeatable) {
+                    repeatTimer = setTimeout(() => {
+                        repeatInterval = setInterval(() => {
+                            triggerPress();
+                        }, 110);
+                    }, 350);
+                }
+            });
+
+            const handlePointerEnd = () => {
+                stopRepeat();
+                clearTimeout(pointerResetTimer);
+                pointerResetTimer = setTimeout(() => {
+                    handledByPointer = false;
+                }, 400);
+            };
+
+            btn.addEventListener("pointerup", handlePointerEnd);
+            btn.addEventListener("pointercancel", handlePointerEnd);
+            btn.addEventListener("pointerleave", handlePointerEnd);
+
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (handledByPointer) {
+                    return;
+                }
+                triggerPress();
+            });
+        });
+
+        function triggerHaptic(ms) {
+            if (navigator.vibrate) {
+                try {
+                    navigator.vibrate(ms);
+                } catch (ignored) {}
+            }
+        }
+
+        let toastTimer = null;
+        function showToast(message, iconSvg = null) {
+            let toast = document.getElementById("appToast");
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "appToast";
+                toast.className = "app-toast";
+                document.body.appendChild(toast);
+            }
+            if (iconSvg) {
+                toast.innerHTML = `<span class="toast-icon" style="display:inline-flex;align-items:center;line-height:0;flex-shrink:0;">${iconSvg}</span><span>${escapeHtml(message)}</span>`;
+            } else {
+                toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            }
+            toast.classList.add("show");
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2200);
+        }
+
+        function getAppIconSvg(name, pkg) {
+            const lowerName = (name || "").toLowerCase();
+            const lowerPkg = (pkg || "").toLowerCase();
+
+            if (lowerName.includes("youtube") || lowerPkg.includes("youtube") || lowerName.includes("smarttube") || lowerPkg.includes("videomanager")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="#EF4444"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#FFFFFF"/></svg>`;
+            }
+            if (lowerName.includes("netflix") || lowerPkg.includes("netflix")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M5.5 2.5h3.2v19H5.5z" fill="#B91C1C"/><path d="M15.3 2.5h3.2v19h-3.2z" fill="#B91C1C"/><path d="M5.5 2.5h3.5l6.3 19h-3.5z" fill="#E50914"/></svg>`;
+            }
+            if (lowerName.includes("setting") || lowerPkg.includes("setting")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+            }
+            if (lowerName.includes("spotify") || lowerPkg.includes("spotify")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="#1DB954"><circle cx="12" cy="12" r="10"/><path d="M7.5 9.5c3.5-1 7.2-.7 10 1M8 12.5c2.8-.8 5.8-.5 8 1M8.5 15.5c2.3-.5 4.6-.3 6.5.8" stroke="#121212" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`;
+            }
+            if (lowerName.includes("music") || lowerPkg.includes("music") || lowerName.includes("audio")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+            }
+            if (lowerName.includes("prime") || lowerPkg.includes("amazon")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00A8E1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 18 12 6 20 6 4" fill="#00A8E1" stroke="none"/><path d="M4 20c4.5 2 11.5 2 16-2" stroke="#00A8E1" stroke-width="2"/></svg>`;
+            }
+            if (lowerName.includes("play store") || lowerPkg.includes("vending")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M3.6 2.5c-.3.4-.4.9-.4 1.5v16c0 .6.1 1.1.4 1.5l.1.1 9-9v-.2l-9.1-8.9z" fill="#00D2FF"/><path d="M15.7 14.6l-3-3v-.2l3-3 .1.1 3.5 2c1 .6 1 1.5 0 2.1l-3.6 2z" fill="#FFCE00"/><path d="M12.7 11.4L3.6 20.5c.4.4.9.4 1.5.1l10.6-6-3-3.2z" fill="#FF334B"/><path d="M12.7 11.4l3-3.2-10.6-6c-.6-.3-1.1-.3-1.5.1l9.1 9.1z" fill="#00E676"/></svg>`;
+            }
+            if (lowerName.includes("vlc") || lowerPkg.includes("videolan")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24"><polygon points="12 2 7 19 17 19" fill="#F97316"/><line x1="4" y1="21" x2="20" y2="21" stroke="#F97316" stroke-width="2.5" stroke-linecap="round"/><line x1="8.5" y1="13" x2="15.5" y2="13" stroke="#FFFFFF" stroke-width="2"/><line x1="10" y1="8" x2="14" y2="8" stroke="#FFFFFF" stroke-width="1.8"/></svg>`;
+            }
+            if (lowerName.includes("plex") || lowerName.includes("kodi") || lowerName.includes("jellyfin")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#E5A00D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><polygon points="10 8 16 12 10 16 10 8" fill="#E5A00D"/></svg>`;
+            }
+            if (lowerName.includes("twitch") || lowerPkg.includes("twitch")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="#9333EA"><path d="M4.5 3h15v11.5l-4.5 4.5h-4l-2 2H6.5v-2h-2z" fill="#9333EA"/><circle cx="10" cy="10" r="1.2" fill="#FFFFFF"/><circle cx="15" cy="10" r="1.2" fill="#FFFFFF"/></svg>`;
+            }
+            if (lowerName.includes("browser") || lowerName.includes("chrome") || lowerPkg.includes("browser")) {
+                return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+            }
+            const initial =
+                name && name.length > 0 ? name.charAt(0).toUpperCase() : "?";
+            return `<span style="font-weight:700;font-size:17px;color:var(--accent-cyan);">${escapeHtml(initial)}</span>`;
+        }
+
+        function renderAppsShelf(apps) {
+            if (!appsShelf) return;
+            appsShelf.innerHTML = "";
+            if (!apps || apps.length === 0) {
+                appsShelf.innerHTML =
+                    '<span style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:13px;padding:16px;">No apps found</span>';
+                return;
+            }
+
+            apps.forEach((app) => {
+                const card = document.createElement("div");
+                card.className = "app-card";
+                card.setAttribute("role", "button");
+                card.setAttribute("tabindex", "0");
+                card.setAttribute("aria-label", `Launch ${app.name}`);
+
+                const icon = document.createElement("div");
+                icon.className = "app-card-icon";
+                icon.innerHTML = getAppIconSvg(app.name, app.package);
+
+                const label = document.createElement("div");
+                label.className = "app-card-name";
+                label.textContent = app.name;
+
+                card.appendChild(icon);
+                card.appendChild(label);
+
+                let startX = 0;
+                let startY = 0;
+                let isScrolling = false;
+                let pressTimer = null;
+
+                card.addEventListener(
+                    "touchstart",
+                    (e) => {
+                        isScrolling = false;
+                        if (e.touches && e.touches.length > 0) {
+                            startX = e.touches[0].clientX;
+                            startY = e.touches[0].clientY;
+                        }
+                        pressTimer = setTimeout(() => {
+                            if (!isScrolling) card.classList.add("is-pressed");
+                        }, 60);
+                    },
+                    { passive: true },
+                );
+
+                card.addEventListener(
+                    "touchmove",
+                    (e) => {
+                        if (e.touches && e.touches.length > 0) {
+                            const dx = Math.abs(e.touches[0].clientX - startX);
+                            const dy = Math.abs(e.touches[0].clientY - startY);
+                            if (dx > 8 || dy > 8) {
+                                isScrolling = true;
+                                if (pressTimer) clearTimeout(pressTimer);
+                                card.classList.remove("is-pressed");
+                            }
+                        }
+                    },
+                    { passive: true },
+                );
+
+                card.addEventListener("touchend", () => {
+                    if (pressTimer) clearTimeout(pressTimer);
+                    card.classList.remove("is-pressed");
+                }, { passive: true });
+
+                card.addEventListener("touchcancel", () => {
+                    if (pressTimer) clearTimeout(pressTimer);
+                    card.classList.remove("is-pressed");
+                }, { passive: true });
+
+                function launch() {
+                    if (isScrolling) return;
+                    triggerHaptic(15);
+                    showToast(`Launching ${app.name} on TV…`);
+                    sendTvCommand({ type: "LAUNCH_APP", package: app.package, name: app.name });
+                }
+
+                card.addEventListener("click", (e) => {
+                    if (isScrolling) {
+                        e.preventDefault();
+                        return;
+                    }
+                    launch();
+                });
+
+                card.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        launch();
+                    }
+                });
+
+                appsShelf.appendChild(card);
+            });
+        }
+
+        function sendTextToTv() {
+            if (!tvTextInput) return;
+            const text = tvTextInput.value.trim();
+            if (!text) return;
+            triggerHaptic(15);
+            showToast("Sending text to TV…");
+            sendTvCommand({ type: "TEXT_INPUT", text: text });
+            tvTextInput.value = "";
+        }
+
+        if (btnSendText) {
+            btnSendText.addEventListener("click", sendTextToTv);
+        }
+        if (tvTextInput) {
+            tvTextInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendTextToTv();
+                }
+            });
+        }
+
+        if (btnForget) {
+            btnForget.addEventListener("click", () => {
+                clearStoredToken();
+                sessionToken = "";
+                try {
+                    window.history.replaceState({}, "", window.location.pathname);
+                } catch (ignored) {}
+                if (inpPairingToken) inpPairingToken.value = "";
+                if (ws) ws.close();
+                triggerHaptic(25);
+                showToast("Pairing cleared");
+                showPairingModal();
+            });
+        }
+
+        if (sessionToken && inpPairingToken) {
+            inpPairingToken.value = sessionToken;
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        connectWs();
+    })();
+}
+        </script>
+    </body>
+</html>

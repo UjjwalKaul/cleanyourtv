@@ -102,6 +102,12 @@
         });
     });
 
+    const initialTab = new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", "");
+    if (initialTab) {
+        const initialBtn = document.querySelector(`.tab-btn[data-tab="${initialTab}"]`);
+        if (initialBtn) initialBtn.click();
+    }
+
     function detectDeviceName() {
         const ua = navigator.userAgent || "";
         if (/iPhone/i.test(ua)) return "Apple iPhone";
